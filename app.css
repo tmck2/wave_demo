@@ -1,0 +1,12 @@
+#container {
+	width: 500px;
+	height: 400px;
+	background-color: #462A4F;
+	position: relative;
+}
+
+.bar {
+	background-color: #15BAE8;
+	float: left;
+	position: absolute;
+}
