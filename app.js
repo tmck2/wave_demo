@@ -1,25 +1,37 @@
-var test
-requirejs(['components/slider'], function(slider) {
+requirejs(['components/slider/slider'], function(slider) {
 	var PI = 3.14159265359
-	var NUM_SAMPLES = 64
+	var NUM_SAMPLES = 300
 
-	var wave = function(a,b,c,d)
-	{
-		return function(t) {
-			return a * (Math.sin((b*PI)/NUM_SAMPLES*t+c/10)+d);
+	function extend( obj, extension ){
+	  for ( var key in extension ){
+	    obj[key] = extension[key];
+	  }
+	}
+	
+	var observable = function() {
+		this.observers = [];
+	}
+
+	observable.prototype = {
+		addObserver: function(observer) {
+			this.observers.push(observer)
+		},
+		notify: function() {
+			this.observers.forEach(function(observer) {
+				observer.update()
+			})
 		}
 	}
 
-	var model = {
-		init: function() {
-			test = this
-			this.a = 0.25
-			this.b = 2
-			this.c = 0
-			this.d = 0
-			this.time = 0
-			this.observers = []
-		},
+	function wave() {
+		this.a = 0.25
+		this.b = 2
+		this.c = 0
+		this.d = 0
+		this.time = 0
+	}
+
+	wave.prototype = {
 		getSamples: function() {
 			var a = this.a;
 			var b = this.b;
@@ -28,64 +40,61 @@ requirejs(['components/slider'], function(slider) {
 			samples = []
 			for(i=0; i<NUM_SAMPLES; i++)
 			{
-				samples.push(wave(a,b,c,d)(this.time+i))
+				samples.push(a * (Math.sin((b*PI)/NUM_SAMPLES*i+c/10)+d))
 			}
 			return samples
 		},
 		setValue: function(prop, val) {
 			this[prop] = val
-			this.notifyObservers()
+			this.notify()
 		},
 		getValue: function(prop) {
 			return this[prop]
-		},
-		addObserver: function(observer) {
-			this.observers.push(observer)
-		},
-		notifyObservers: function() {
-			this.observers.forEach(function(observer) {
-				observer.update()
-			})
 		}
 	};
 
-	var app = {
-		init: function() {
-			var self = this
+	var controller = function() {
+		var self = this
 
-			model.init()
-			view.init(model)
+		self.model = new wave()
+		extend(self.model, new observable())
+		self.view = new view(self.model)
 
-			self.sliderContainer = document.getElementById('sliders')
-			self.aslider = new slider.controller(self.sliderContainer)
-			self.bslider = new slider.controller(self.sliderContainer)
-			self.cslider = new slider.controller(self.sliderContainer)
-			self.dslider = new slider.controller(self.sliderContainer)
-			
-			self.aslider.model.addObserver({update: function() {
-				model.setValue('a', self.aslider.model.getValue() / 300)
-			}})
+		self.sliderContainer = document.getElementById('sliders')
+		self.aslider = new slider.controller(self.sliderContainer)
+		self.bslider = new slider.controller(self.sliderContainer)
+		self.cslider = new slider.controller(self.sliderContainer)
+		self.dslider = new slider.controller(self.sliderContainer)
 
-			self.bslider.model.addObserver({update: function() {
-				model.setValue('b', self.bslider.model.getValue() / 5)
-			}})
+		self.aslider.model.addObserver({update: function() {
+			self.model.setValue('a', self.aslider.model.getValue() / 300)
+		}})
 
-			self.cslider.model.addObserver({update: function() {
-				model.setValue('c', self.cslider.model.getValue() * PI)
-			}})
+		self.bslider.model.addObserver({update: function() {
+			self.model.setValue('b', self.bslider.model.getValue() / 5)
+		}})
 
-			self.dslider.model.addObserver({update: function() {
-				model.setValue('d', self.dslider.model.getValue() / 25)
-			}})
-		}
-	};
+		self.cslider.model.addObserver({update: function() {
+			self.model.setValue('c', self.cslider.model.getValue() * PI)
+		}})
 
-	var view = {
-		init: function(model) {
-			this.model = model
-			this.container = document.getElementById('container')
-			model.addObserver(this)
-		},
+		self.dslider.model.addObserver({update: function() {
+			self.model.setValue('d', self.dslider.model.getValue() / 25)
+		}})
+
+		self.aslider.model.setValue(50)
+		self.bslider.model.setValue(50)
+		self.cslider.model.setValue(50)
+		self.dslider.model.setValue(50)
+	}
+
+	function view(model) {
+		this.model = model
+		this.container = document.getElementById('container')
+		model.addObserver(this)
+	}
+
+	view.prototype = {		
 		update: function() {
 			this.render()
 		},
@@ -108,5 +117,5 @@ requirejs(['components/slider'], function(slider) {
 		}
 	};
 
-	app.init()
+	new controller()
 })
