@@ -1,0 +1,18 @@
+{
+  "name": "demo",
+  "description": "",
+  "main": "app.js",
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "requirejs": "^2.1.22"
+  }
+}

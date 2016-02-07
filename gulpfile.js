@@ -9,12 +9,12 @@ gulp.task('connect', function() {
 });
  
 gulp.task('reload', function () {
-  gulp.src('*.*')
+  gulp.src(['*.*','components/*.*'])
     .pipe(connect.reload());
 });
  
 gulp.task('watch', function () {
-  gulp.watch(['*.*'], ['reload']);
+  gulp.watch(['*.*','components/*.*'], ['reload']);
 });
  
 gulp.task('default', ['connect', 'watch']);
