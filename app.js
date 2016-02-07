@@ -1,27 +1,6 @@
-requirejs(['components/slider/slider'], function(slider) {
+requirejs(['observable', 'slider', 'utilities'], function(observable, slider, utilities) {
 	var PI = 3.14159265359
 	var NUM_SAMPLES = 300
-
-	function extend( obj, extension ){
-	  for ( var key in extension ){
-	    obj[key] = extension[key];
-	  }
-	}
-	
-	var observable = function() {
-		this.observers = [];
-	}
-
-	observable.prototype = {
-		addObserver: function(observer) {
-			this.observers.push(observer)
-		},
-		notify: function() {
-			this.observers.forEach(function(observer) {
-				observer.update()
-			})
-		}
-	}
 
 	function wave() {
 		this.a = 0.25
@@ -57,7 +36,7 @@ requirejs(['components/slider/slider'], function(slider) {
 		var self = this
 
 		self.model = new wave()
-		extend(self.model, new observable())
+		utilities.extend(self.model, new observable())
 		self.view = new view(self.model)
 
 		self.sliderContainer = document.getElementById('sliders')
