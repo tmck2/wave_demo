@@ -3,6 +3,7 @@ define(function() {
 	  for ( var key in extension ){
 	    obj[key] = extension[key];
 	  }
+	  return obj
 	}
 
 	return {

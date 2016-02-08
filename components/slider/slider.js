@@ -1,4 +1,4 @@
-define(function () {
+define(['observable','utilities'], function (observable,utilities) {
 	function model() {
 		this.observers = []
 		this.value = 0	
@@ -12,21 +12,13 @@ define(function () {
 			if(newval < 0 || newval > 100) return
 
 			this.value = newval
-			this.notifyObservers()
-		},
-		addObserver: function(observer) {
-			this.observers.push(observer)
-		},
-		notifyObservers: function() {
-			this.observers.forEach(function(observer) {
-				observer.update()
-			})
+			this.notify()
 		}
 	}
 
 	function controller(container) {
 		var self = this;
-		self.model = new model()
+		self.model = utilities.extend(new model(), new observable())
 
 		div = document.createElement('div')
 		div.className = 'slider'

@@ -1,4 +1,4 @@
-requirejs(['observable', 'slider', 'utilities'], function(observable, slider, utilities) {
+require(['observable', 'slider', 'utilities'], function(observable, slider, utilities) {
 	var PI = 3.14159265359
 	var NUM_SAMPLES = 300
 
