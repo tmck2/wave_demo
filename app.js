@@ -19,8 +19,9 @@ require(['observable', 'slider', 'utilities'], function(observable, slider, util
 			samples = []
 			for(i=0; i<NUM_SAMPLES; i++)
 			{
-				samples.push(a * (Math.sin((b*PI)/NUM_SAMPLES*i+c/10)+d))
+				samples.push([i, a * (Math.sin((b*PI)/NUM_SAMPLES*i+c/10)+d)])
 			}
+			
 			return samples
 		},
 		setValue: function(prop, val) {
@@ -65,6 +66,8 @@ require(['observable', 'slider', 'utilities'], function(observable, slider, util
 		self.bslider.model.setValue(50)
 		self.cslider.model.setValue(50)
 		self.dslider.model.setValue(50)
+
+		new canvasController(self.model)
 	}
 
 	function view(model) {
@@ -86,7 +89,7 @@ require(['observable', 'slider', 'utilities'], function(observable, slider, util
 				var div = document.createElement('div')
 				div.className = 'bar'
 				div.style.width = width
-				div.style.height = samples[i]*400
+				div.style.height = samples[i][1]*400
 				div.style.left = i * width
 				div.style.bottom = 0
 				docfrag.appendChild(div)
@@ -95,6 +98,43 @@ require(['observable', 'slider', 'utilities'], function(observable, slider, util
 			container.appendChild(docfrag)
 		}
 	};
+
+	function canvasView(model) {
+		var self = this
+		var canvas = document.getElementById('canvas')
+		this.ctx = canvas.getContext('2d')
+
+		model.addObserver({update: function() { render() }})
+		render()
+
+		function update() {
+			render()
+		}
+
+		function render() {
+			var samples = model.getSamples()
+			points = samples.map(function(pt) { return [pt[0], pt[1]*75+75] })
+			self.ctx.clearRect(0,0,300,150)
+			self.ctx.fillStyle = "green"
+			self.ctx.beginPath()
+			self.ctx.moveTo(points[0][0], points[0][1])
+			for(i=1; i<points.length; i++)
+			{
+				self.ctx.lineTo(points[i][0], points[i][1])
+			}
+			self.ctx.lineTo(300, points[299][1])
+			self.ctx.strokeStyle = "indigo"
+			self.ctx.lineWidth = 5
+			self.ctx.stroke()
+			self.ctx.lineTo(300, 150)
+			self.ctx.lineTo(0, 150)
+			self.ctx.fill()
+		}
+	}
+
+	function canvasController(model) {
+		this.view = new canvasView(model)
+	}
 
 	new controller()
 })
